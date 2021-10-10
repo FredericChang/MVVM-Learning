@@ -12,6 +12,7 @@ using WpfApp2.Views;
 using System.Windows.Navigation;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -113,9 +114,32 @@ namespace WpfApp2.ViewModels
             get => _status;
             set => SetProperty(ref _status, value);
         }
-        
+
+        //MVVM01
         public ICommand ExecCommand { get;}
+
+        //MVVM03
         public IRelayCommand CalculateCommand { get; }
+
+        //MVVM03
+        public IRelayCommand SendCommand { get; }
+        private string _sendMessage;
+        public string SendMessage
+        {
+            get => _sendMessage;
+            set
+            {
+                SetProperty(ref _sendMessage, value);
+                SendCommand.NotifyCanExecuteChanged();
+            }
+        }
+
+        private string _receiveMessage;
+        public string ReceiveMessage
+        {
+            get => _receiveMessage;
+            set => SetProperty(ref _receiveMessage, value);
+        }
 
 
         public MainViewModel()
@@ -131,7 +155,22 @@ namespace WpfApp2.ViewModels
             Status = "";
             ExecCommand = new AsyncRelayCommand(ExecAsync);
 
+            WeakReferenceMessenger.Default.Register<string>(this, OnReceive);
+            SendCommand = new RelayCommand(
+                execute: () =>
+                {
+                    Console.WriteLine("SendCommand_execute");   
+                    WeakReferenceMessenger.Default.Send(SendMessage);
+                },
+                canExecute: () =>
+                {
+                    Console.WriteLine("SendCommand_canExecute");
+                    var a = !string.IsNullOrEmpty(SendMessage);
+                    Console.WriteLine(a);
+                    return !string.IsNullOrEmpty(SendMessage);
 
+                    // if the return value is false, this button could not be executed.
+                });
 
             CalculateCommand = new RelayCommand(
                 execute: () =>
@@ -160,6 +199,13 @@ namespace WpfApp2.ViewModels
 
             IsFree = true;
             Status = "Complete";
+        }
+
+        private void OnReceive(object recipient, string message)
+        {
+            ReceiveMessage = $"Recevied:{message}";
+            Console.WriteLine("SendCommand_ReceiveMessage");
+
         }
     }
 
