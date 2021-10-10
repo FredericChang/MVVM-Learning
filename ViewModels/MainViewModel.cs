@@ -123,6 +123,9 @@ namespace WpfApp2.ViewModels
 
         //MVVM03
         public IRelayCommand SendCommand { get; }
+        public IRelayCommand SendCommand2 { get; }
+
+
         private string _sendMessage;
         public string SendMessage
         {
@@ -141,6 +144,13 @@ namespace WpfApp2.ViewModels
             set => SetProperty(ref _receiveMessage, value);
         }
 
+        private string _receiveMessage2;
+        public string ReceiveMessage2
+        {
+            get => _receiveMessage2;
+            set => SetProperty(ref _receiveMessage2, value);
+        }
+
 
         public MainViewModel()
         {
@@ -156,6 +166,8 @@ namespace WpfApp2.ViewModels
             ExecCommand = new AsyncRelayCommand(ExecAsync);
 
             WeakReferenceMessenger.Default.Register<string>(this, OnReceive);
+            WeakReferenceMessenger.Default.Register<Models.Message>(this, OnReceive2);
+
             SendCommand = new RelayCommand(
                 execute: () =>
                 {
@@ -171,7 +183,11 @@ namespace WpfApp2.ViewModels
 
                     // if the return value is false, this button could not be executed.
                 });
-
+            SendCommand2 = new RelayCommand(() =>
+            {
+                WeakReferenceMessenger.Default.Send(new Models.Message { Num = 123, Str = DateTime.Now.ToString()});
+                // you could send the message directly.
+            });
             CalculateCommand = new RelayCommand(
                 execute: () =>
                 {
@@ -205,7 +221,13 @@ namespace WpfApp2.ViewModels
         {
             ReceiveMessage = $"Recevied:{message}";
             Console.WriteLine("SendCommand_ReceiveMessage");
-
+            //<TextBlock Margin="10" Text="{Binding ReceiveMessage}" />
+        }
+        private void OnReceive2(object recipient, Models.Message message)
+        {
+            ReceiveMessage2 = $"Num:{message.Num}, Str:{message.Str}";
+            Console.WriteLine("SendCommand_ReceiveMessage");
+            //<TextBlock Margin="10" Text="{Binding ReceiveMessage}" />
         }
     }
 

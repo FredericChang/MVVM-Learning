@@ -6,10 +6,10 @@
         xmlns:viewmodel="cle-namespace:WpfApp2.ViewModel"
         xmlns:local="clr-namespace:WpfApp2"
         mc:Ignorable="d"
-        Title="PageLogin" Height="450" Width="800">
+        Title="PageLogin" Height="610.5" Width="1151">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,10,492,217">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,26,843,361">
             <TextBlock FontSize="30" Text="请登录" />
             <WrapPanel>
                 <TextBlock
@@ -63,6 +63,13 @@
             Command="{Binding SendCommand}"
             Content="Send" />
             <TextBlock Margin="10" Text="{Binding ReceiveMessage}" />
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Left" Height="100" Margin="39,328,0,0" VerticalAlignment="Top" Width="332">
+            <Button
+            Margin="10"
+            Command="{Binding SendCommand2}"
+            Content="Send" />
+            <TextBlock Margin="10" Text="{Binding ReceiveMessage2}" />
         </StackPanel>
     </Grid>
 
