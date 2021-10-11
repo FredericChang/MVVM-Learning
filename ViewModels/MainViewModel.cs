@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WpfApp2.Helpers;
@@ -15,10 +12,12 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Threading;
 
 namespace WpfApp2.ViewModels
 {
     class MainViewModel : ObservableObject
+    //class MainViewModel : ObservableRecipient, IRecipient<Models.Message>
 
     {
         private User user;
@@ -71,7 +70,7 @@ namespace WpfApp2.ViewModels
         //{
         //    get { return FirstName + " " + LastName; }
         //}
-
+        private int _sendCount;
         private string _value1;
         public string Value1
         {
@@ -150,7 +149,37 @@ namespace WpfApp2.ViewModels
             get => _receiveMessage2;
             set => SetProperty(ref _receiveMessage2, value);
         }
+        //MVVM06
 
+        private bool _isBusy;
+        /// <summary>
+        /// Processing flag
+        /// </summary>
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
+        }
+
+        private int _progressValue;
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set => SetProperty(ref _progressValue, value);
+        }
+
+        private string _progressText;
+        public string ProgressText
+        {
+            get => _progressText;
+            set => SetProperty(ref _progressText, value);
+        }
+
+        private CancellationTokenSource _cancelTokenSrc;
+        private HeavyWorkModel _model;
+
+        public IAsyncRelayCommand ExecuteCommand { get; }
+        public IRelayCommand CancelCommand { get; }
 
         public MainViewModel()
         {
@@ -161,12 +190,14 @@ namespace WpfApp2.ViewModels
                 BirthDate = DateTime.Now.AddYears(-30)
             };
 
+
+
             IsFree = true;
             Status = "";
             ExecCommand = new AsyncRelayCommand(ExecAsync);
 
-            WeakReferenceMessenger.Default.Register<string>(this, OnReceive);
-            WeakReferenceMessenger.Default.Register<Models.Message>(this, OnReceive2);
+            //WeakReferenceMessenger.Default.Register<string>(this, OnReceive);
+            //WeakReferenceMessenger.Default.Register<Models.Message>(this, OnReceive2);
 
             SendCommand = new RelayCommand(
                 execute: () =>
@@ -183,9 +214,14 @@ namespace WpfApp2.ViewModels
 
                     // if the return value is false, this button could not be executed.
                 });
+            //this.IsActive = true;
+
+            _sendCount = 0;
             SendCommand2 = new RelayCommand(() =>
             {
-                WeakReferenceMessenger.Default.Send(new Models.Message { Num = 123, Str = DateTime.Now.ToString()});
+
+                _sendCount++;
+                WeakReferenceMessenger.Default.Send(new Models.Message { Num = _sendCount, Str = DateTime.Now.ToString()});
                 // you could send the message directly.
             });
             CalculateCommand = new RelayCommand(
@@ -204,6 +240,17 @@ namespace WpfApp2.ViewModels
                 {
                     return !string.IsNullOrEmpty(Value1) && !string.IsNullOrEmpty(Value2);
                 });
+            IsBusy = false;
+
+            ExecuteCommand = new AsyncRelayCommand(OnExecuteAsync, CanExecute);
+
+            CancelCommand = new RelayCommand(
+                () =>
+                {
+                    _cancelTokenSrc?.Cancel();
+                    UpdateCommandStatus();
+                },
+                () => IsBusy);
         }
 
         private async Task ExecAsync()
@@ -228,6 +275,44 @@ namespace WpfApp2.ViewModels
             ReceiveMessage2 = $"Num:{message.Num}, Str:{message.Str}";
             Console.WriteLine("SendCommand_ReceiveMessage");
             //<TextBlock Margin="10" Text="{Binding ReceiveMessage}" />
+        }
+
+        //this method is created by IRecipient<Models.Message>
+        public void Receive(Models.Message message)
+        {
+            ReceiveMessage2 = $"Num={message.Num}, Str={message.Str}";
+        }
+
+        private async Task OnExecuteAsync()
+        {
+            IsBusy = true;
+            UpdateCommandStatus();
+
+            _model = new HeavyWorkModel();
+
+            var p = new Progress<ProgressInfo>();
+            p.ProgressChanged += (sender, e) =>
+            {
+                ProgressValue = e.ProgressValue;
+                ProgressText = e.ProgressText;
+            };
+
+            _cancelTokenSrc = new CancellationTokenSource();
+            await _model.HeavyWorkAsync(p, _cancelTokenSrc.Token);
+
+            IsBusy = false;
+            UpdateCommandStatus();
+        }
+
+        private bool CanExecute()
+        {
+            return !IsBusy;
+        }
+
+        private void UpdateCommandStatus()
+        {
+            ExecuteCommand.NotifyCanExecuteChanged();
+            CancelCommand.NotifyCanExecuteChanged();
         }
     }
 

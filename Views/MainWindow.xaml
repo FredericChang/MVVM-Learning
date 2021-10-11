@@ -9,7 +9,7 @@
         Title="PageLogin" Height="610.5" Width="1151">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,26,843,361">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,26,843,361" Background="#FF98D680">
             <TextBlock FontSize="30" Text="请登录" />
             <WrapPanel>
                 <TextBlock
@@ -37,7 +37,7 @@
                 Command="{Binding LoginCommand}"
                 Content="登录" />
         </StackPanel>
-        <StackPanel HorizontalAlignment="Left" Height="174" Margin="343,28,0,0" VerticalAlignment="Top" Width="283">
+        <StackPanel HorizontalAlignment="Left" Height="190" Margin="343,28,0,0" VerticalAlignment="Top" Width="283" Background="#FFD4BD54">
             <!--  Input  -->
             <TextBox Margin="10" Text="{Binding Value1, UpdateSourceTrigger=PropertyChanged}" />
             <TextBox Margin="10" Text="{Binding Value2, UpdateSourceTrigger=PropertyChanged}" />
@@ -49,14 +49,14 @@
             <!--  Result  -->
             <TextBlock Margin="10" Text="{Binding Result}" />
         </StackPanel>
-        <StackPanel HorizontalAlignment="Left" Height="100" Margin="21,223,0,0" VerticalAlignment="Top" Width="253">
+        <StackPanel HorizontalAlignment="Left" Height="100" Margin="10,223,0,0" VerticalAlignment="Top" Width="290" Background="#FFFFB4B4">
             <Button
             Margin="10"
             Command="{Binding ExecCommand, Mode=OneTime}"
             Content="Button" />
             <TextBlock Margin="10" Text="{Binding Status}" />
         </StackPanel>
-        <StackPanel HorizontalAlignment="Left" Height="100" Margin="343,223,0,0" VerticalAlignment="Top" Width="351">
+        <StackPanel HorizontalAlignment="Left" Height="100" Margin="343,223,0,0" VerticalAlignment="Top" Width="283" Background="#FFEC6C6C">
             <TextBox Margin="10" Text="{Binding SendMessage, UpdateSourceTrigger=PropertyChanged}" />
             <Button
             Margin="10"
@@ -64,13 +64,29 @@
             Content="Send" />
             <TextBlock Margin="10" Text="{Binding ReceiveMessage}" />
         </StackPanel>
-        <StackPanel HorizontalAlignment="Left" Height="100" Margin="39,328,0,0" VerticalAlignment="Top" Width="332">
+        <StackPanel HorizontalAlignment="Left" Height="100" Margin="10,328,0,0" VerticalAlignment="Top" Width="290" Background="#FFF9A0A0">
             <Button
             Margin="10"
             Command="{Binding SendCommand2}"
             Content="Send" />
             <TextBlock Margin="10" Text="{Binding ReceiveMessage2}" />
         </StackPanel>
+        <StackPanel HorizontalAlignment="Left" Height="126" Margin="343,328,0,0" VerticalAlignment="Top" Width="283" Background="#FFC94FCF">
+            <TextBlock
+                Margin="10,10,10,0"
+                HorizontalAlignment="Center"
+                Text="{Binding ProgressText}" />
+            <ProgressBar Margin="10,0,10,10" Height="10" Value="{Binding ProgressValue}"/>
+            <Button
+                Margin="10"
+                Command="{Binding ExecuteCommand}"
+                Content="Execute"/>
+            <Button
+                Margin="10"
+                Command="{Binding CancelCommand}"
+                Content="Cancel" />
+        </StackPanel>
+        
     </Grid>
 
 </Window>
